@@ -134,4 +134,73 @@ Select your operating system/compute platform and run the command in your termin
 Option 2. Build from Source
 ---------------------------
 
-Upcoming.
+Step 1. Download and build mlc-llm
+
+.. note::
+    It is recommended to use python virtual environment such as conda or virtualenv.
+
+.. code-block:: bash
+
+    git clone git@github.com:KnowingNothing/mlc-llm.git
+    cd mlc-llm
+    git submodule update --init --recursive
+
+    # build
+    mkdir build
+    cd build
+    python ../cmake/gen_cmake_config.py
+    # select the options according to your settings
+    # you will have a config.cmake generated in build directory
+    # add set(USE_FLASHINFER ON) to the config.cmake file
+    cmake -DFLASHINFER_CUDA_ARCHITECTURES=89 ..
+    make -j 32
+
+Step 2. Build TVM
+.. code-block:: bash
+
+    # we wil use the tvm downloaded as 3rdparty
+    cd mlc-llm/3rdparty/tvm
+    mkdir build
+    cd build
+    cp ../cmake/config.cmake .
+    # edit config.cmake:
+    # set LLVM to the path of llvm-config
+    # set CUDA ON
+    # set CUTLASS ON
+    # add set(USE_FLASHINFER ON)
+    # save
+    cmake -DFLASHINFER_CUDA_ARCHITECTURES=89 ..
+    make -j 32
+
+Step 3. Install MLC-LLM
+.. code-block:: bash
+
+    cd mlc-llm
+    python setup.py install
+    pip install numpy decorator attrs psutil cloundpickle
+
+Step 4. Setup environment variables
+.. code-block:: bash
+
+    # If you don't have local cudnn, and your pytorch can't find cudnn and nccl
+    # change MY_PY_LIB to your own lib path
+    export MY_PY_LIB=/home/zhengsz/venv/mlc/lib/python3.10/site-packages
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MY_PY_LIB/nvidia_cudnn_cu12-8.9.2.26-py3.10-linux-x86_64.egg/nvidia/cudnn/lib/:$MY_PY_LIB/nvidia_nccl_cu12-2.18.1-py3.10-linux-x86_64.egg/nvidia/nccl/lib/
+
+    # other settings
+    # change MLC_ROOT_HOME to your mlc-llm path
+    export MLC_ROOT_HOME=mlc-llm
+    export TVM_HOME=$MLC_ROOT_HOME/3rdparty/tvm
+    export MLC_CHAT_HOME=$MLC_ROOT_HOME/python
+    export PYTHONPATH=$MLC_CHAT_HOME:$TVM_HOME/python:$PYTHONPATH
+
+You can optionally use `setenv.sh` in mlc-llm to do the above things, remember to replace some paths.
+
+
+Run some examples:
+.. code-block:: bash
+    python build.py --debug-dump --model=Llama-2-7b-chat-hf --quantization=q4f16_1 --sep-embed --enable-batching --use-cache=0
+    mkdir -p dist/models
+    git lfs install
+    git clone https://huggingface.co/meta-llama/Llama-2-7b-chat-hf dist/models
+    python tests/python/serve/test_serve_engine.py
