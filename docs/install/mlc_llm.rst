@@ -177,7 +177,7 @@ Step 3. Install MLC-LLM
 
     cd mlc-llm
     python setup.py install
-    pip install numpy decorator attrs psutil cloundpickle
+    pip install numpy decorator attrs psutil cloundpickle pydantic
 
 Step 4. Setup environment variables
 .. code-block:: bash
