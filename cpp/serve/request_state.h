@@ -78,6 +78,9 @@ class RequestModelStateNode : public Object {
   /*! \brief Return the total length of the input data. */
   int GetInputLength() const;
 
+  /*! \brief Return the total length of the draft data. */
+  int GetDraftLength() const;
+
   static constexpr const char* _type_key = "mlc.serve.RequestModelState";
   static constexpr const bool _type_has_method_sequal_reduce = false;
   static constexpr const bool _type_has_method_shash_reduce = false;

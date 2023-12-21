@@ -31,6 +31,8 @@ int RequestModelStateNode::GetInputLength() const {
   return total_length;
 }
 
+int RequestModelStateNode::GetDraftLength() const { return (int)draft_output_tokens.size(); }
+
 TVM_REGISTER_OBJECT_TYPE(RequestStateNode);
 
 RequestState::RequestState(Request request, int num_models, int64_t internal_id) {

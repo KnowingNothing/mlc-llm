@@ -107,8 +107,13 @@ class NewRequestPrefillActionObj : public EngineActionObj {
     int sum_prefill_lengths = 0;
     auto tnow = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < num_requests; ++i) {
-      mstates_for_sample[i]->committed_tokens.push_back(next_tokens[i]);
-      if (mstates_for_sample[i]->committed_tokens.size() == 1) {
+      for (auto& mstate : rstates[i]->mstates) {
+        // sync the committed tokens among all models
+        mstate->committed_tokens.push_back(next_tokens[i]);
+      }
+      // If a request is first-time prefilled, set the prefill finish time.
+      // Only check the first model
+      if (rstates[i]->mstates[0]->committed_tokens.size() == 1) {
         estate->GetRequestState(requests[i])->tprefill_finish = tnow;
       }
       sum_prefill_lengths += prefill_lengths[i];

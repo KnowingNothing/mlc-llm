@@ -67,7 +67,8 @@ class Engine {
       int max_single_sequence_length, const String& tokenizer_path,
       const String& kv_cache_config_json_str, Optional<PackedFunc> request_stream_callback,
       Optional<EventTraceRecorder> trace_recorder,
-      const std::vector<std::tuple<TVMArgValue, String, DLDevice>>& model_infos);
+      const std::vector<std::tuple<TVMArgValue, String, DLDevice>>& model_infos,
+      int draft_length = 4);
 
   /*! \brief Reset the engine, clean up all running data and statistics. */
   virtual void Reset() = 0;

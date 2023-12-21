@@ -43,7 +43,8 @@ class EngineImpl : public Engine {
                       const String& kv_cache_config_json_str,
                       Optional<PackedFunc> request_stream_callback,
                       Optional<EventTraceRecorder> trace_recorder,
-                      const std::vector<std::tuple<TVMArgValue, String, DLDevice>>& model_infos) {
+                      const std::vector<std::tuple<TVMArgValue, String, DLDevice>>& model_infos,
+                      int draft_length = 4) {
     CHECK_GE(model_infos.size(), 1) << "ValueError: No model is provided in the engine.";
     // Step 1. Initialize metadata and singleton states inside the engine
     this->estate_->Reset();
@@ -68,12 +69,25 @@ class EngineImpl : public Engine {
       this->models_.push_back(model);
     }
     // Step 3. Initialize engine actions that represent state transitions.
-    this->actions_ = {
-        EngineAction::NewRequestPrefill(this->models_,           //
-                                        this->sampler_,          //
-                                        this->kv_cache_config_,  //
-                                        this->max_single_sequence_length_, this->trace_recorder_),
-        EngineAction::BatchDecode(this->models_, this->sampler_, this->trace_recorder_)};
+    if (this->models_.size() > 1U) {
+      // If there are multiple models, we need to use speculative decoding
+      this->actions_ = {
+          EngineAction::NewRequestPrefill(this->models_,           //
+                                          this->sampler_,          //
+                                          this->kv_cache_config_,  //
+                                          this->max_single_sequence_length_, this->trace_recorder_),
+          EngineAction::BatchDraft(this->models_, this->sampler_, this->trace_recorder_,
+                                   draft_length),
+          EngineAction::BatchVerify(this->models_, this->sampler_, this->kv_cache_config_,
+                                    this->max_single_sequence_length_, this->trace_recorder_)};
+    } else {
+      this->actions_ = {
+          EngineAction::NewRequestPrefill(this->models_,           //
+                                          this->sampler_,          //
+                                          this->kv_cache_config_,  //
+                                          this->max_single_sequence_length_, this->trace_recorder_),
+          EngineAction::BatchDecode(this->models_, this->sampler_, this->trace_recorder_)};
+    }
   }
 
   void Reset() final {
@@ -179,10 +193,10 @@ std::unique_ptr<Engine> Engine::Create(
     int max_single_sequence_length, const String& tokenizer_path,
     const String& kv_cache_config_json_str, Optional<PackedFunc> request_stream_callback,
     Optional<EventTraceRecorder> trace_recorder,
-    const std::vector<std::tuple<TVMArgValue, String, DLDevice>>& model_infos) {
+    const std::vector<std::tuple<TVMArgValue, String, DLDevice>>& model_infos, int draft_length) {
   return std::make_unique<EngineImpl>(max_single_sequence_length, tokenizer_path,
                                       kv_cache_config_json_str, request_stream_callback,
-                                      std::move(trace_recorder), model_infos);
+                                      std::move(trace_recorder), model_infos, draft_length);
 }
 
 /*! \brief Clear global memory manager */
@@ -211,8 +225,10 @@ std::unique_ptr<Engine> CreateEnginePacked(TVMArgs args) {
       "4) (int) Device id, i.e. the ordinal index of the device that exists locally.";
 
   ClearGlobalMemoryManager();
-  int num_models = (args.size() - 4) / 4;
+  int num_models = (args.size() - 5) / 4;
+  int is_spec_decode = num_models > 1;
   int max_single_sequence_length;
+  int draft_length = 4;
   std::string tokenizer_path;
   std::string kv_cache_config_json_str;
   Optional<PackedFunc> request_stream_callback;
@@ -220,7 +236,11 @@ std::unique_ptr<Engine> CreateEnginePacked(TVMArgs args) {
   std::vector<std::tuple<TVMArgValue, String, DLDevice>> model_infos;
   model_infos.reserve(num_models);
   try {
-    CHECK_EQ(num_models * 4 + 5, args.size()) << "Incorrect number of arguments.";
+    if (!is_spec_decode) {
+      CHECK_EQ(num_models * 4 + 5, args.size()) << "Incorrect number of arguments.";
+    } else {
+      CHECK_LE(num_models * 4 + 5, args.size()) << "Incorrect number of arguments.";
+    }
     max_single_sequence_length = args.At<int>(0);
     tokenizer_path = args.At<std::string>(1);
     kv_cache_config_json_str = args.At<std::string>(2);
@@ -233,11 +253,15 @@ std::unique_ptr<Engine> CreateEnginePacked(TVMArgs args) {
       int device_id = args.At<int>(i * 4 + 8);
       model_infos.emplace_back(model_lib, model_path, DLDevice{device_type, device_id});
     }
+    if (is_spec_decode && args.size() > num_models * 4 + 5) {
+      draft_length = args.At<int>(args.size() - 1);
+    }
   } catch (const dmlc::Error& e) {
     LOG(FATAL) << "ValueError: " << e.what() << kErrorMessage;
   }
   return Engine::Create(max_single_sequence_length, tokenizer_path, kv_cache_config_json_str,
-                        request_stream_callback, std::move(trace_recorder), model_infos);
+                        request_stream_callback, std::move(trace_recorder), model_infos,
+                        draft_length);
 }
 
 class EngineModule : public ModuleNode {

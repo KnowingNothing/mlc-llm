@@ -126,11 +126,13 @@ void SetProbWithArgmaxOnCPU(NDArray logits, int token_offset) {
  * \param unit_offset The offset specifying which distribution to sample from.
  * \param top_p The top-p value of sampling.
  * \param uniform_sample The random number in [0, 1] for sampling.
- * \return The sampled value.
+ * \return The sampled prob and value.
  * \note This function is an enhancement of SampleTopPFromProb in TVM Unity.
  * We will upstream the enhancement after it gets stable.
  */
-int SampleTopPFromProb(NDArray prob, int unit_offset, double top_p, double uniform_sample) {
+std::pair<float, int64_t> SampleTopPFromProb(NDArray prob, int unit_offset, double top_p,
+                                             double uniform_sample,
+                                             std::vector<NDArray>* output_prob_dist = nullptr) {
   // prob: (*, v)
   // The prob array may have arbitrary ndim and shape.
   // The last dimension corresponds to the prob distribution size.
@@ -151,13 +153,18 @@ int SampleTopPFromProb(NDArray prob, int unit_offset, double top_p, double unifo
       static_cast<float*>(__builtin_assume_aligned(prob->data, 4)) + (unit_offset * ndata);
   constexpr double one = 1.0f - 1e-5f;
 
+  if (output_prob_dist) {
+    (*output_prob_dist)[unit_offset] = NDArray::Empty({ndata}, prob->dtype, DLDevice{kDLCPU, 0});
+    (*output_prob_dist)[unit_offset].CopyFromBytes(p_prob, ndata * sizeof(float));
+  }
+
   if (top_p >= one) {
     // Specially handle case where top_p == 1.
     double prob_sum = 0.0f;
     for (int64_t i = 0; i < ndata; ++i) {
       prob_sum += p_prob[i];
       if (prob_sum >= uniform_sample) {
-        return i;
+        return std::make_pair(p_prob[i], i);
       }
     }
     LOG(INFO) << "prob sum = " << prob_sum << ", sample = " << uniform_sample;
@@ -169,7 +176,7 @@ int SampleTopPFromProb(NDArray prob, int unit_offset, double top_p, double unifo
   // high probabilities before we do sort
   thread_local std::vector<std::pair<float, int>> data;
 
-  auto sample_top_p_with_filter = [&](float cuttoff) -> int64_t {
+  auto sample_top_p_with_filter = [&](float cuttoff) -> std::pair<float, int64_t> {
     data.clear();
     // filter the data with cuttoff
     float cutoff_sum = 0.0f;
@@ -184,7 +191,7 @@ int SampleTopPFromProb(NDArray prob, int unit_offset, double top_p, double unifo
         }
       }
     }
-    if (data.size() == 0) return -1;
+    if (data.size() == 0) return std::make_pair(-1, -1);
     auto fcmp = [](const std::pair<float, int>& lhs, const std::pair<float, int>& rhs) {
       return lhs.first > rhs.first;
     };
@@ -196,7 +203,8 @@ int SampleTopPFromProb(NDArray prob, int unit_offset, double top_p, double unifo
     // because top_p_sum guarantees to be smaller than top_p
     // so we can simply return the argmax sample
     // without computing anything
-    if (uniform_sample < data[0].first / top_p) return data[0].second;
+    if (uniform_sample < data[0].first / top_p)
+      return std::make_pair(data[0].first, data[0].second);
 
     // compute top_p_sum
     float cum_sum_prob = 0.0f;
@@ -215,14 +223,17 @@ int SampleTopPFromProb(NDArray prob, int unit_offset, double top_p, double unifo
     // we find that the current total sum by the given cutoff
     // is not sufficient to cover everything
     // this means we might need to retry a smaller cutoff pt.
-    if (cum_sum_prob < top_p && cuttoff != 0.0f) return -1;
+    if (cum_sum_prob < top_p && cuttoff != 0.0f) return std::make_pair(-1, -1);
 
+    float last_cum_sum_prob = 0.0;
     for (auto it = data.begin(); it != data.end(); ++it) {
       if (uniform_sample < it->first / top_p_sum) {
-        return it->second;
+        return std::make_pair(it->first - last_cum_sum_prob, it->second);
       }
+      last_cum_sum_prob = it->first;
     }
-    return data[data.size() - 1].second;
+    return std::make_pair(data[data.size() - 1].first - last_cum_sum_prob,
+                          data[data.size() - 1].second);
   };
 
   if (top_p < 1) {
@@ -230,13 +241,13 @@ int SampleTopPFromProb(NDArray prob, int unit_offset, double top_p, double unifo
     // by pigeonhole principle we will get at most 1024 elements
     // usually it is much less by applying this filtering(order of 10 - 20)
     data.reserve(256);
-    int64_t sampled_index = sample_top_p_with_filter(top_p / 1024);
-    if (sampled_index >= 0) return sampled_index;
+    std::pair<float, int64_t> sampled_index = sample_top_p_with_filter(top_p / 1024);
+    if (sampled_index.second >= 0) return sampled_index;
   }
   // fallback via full prob, rare case
   data.reserve(ndata);
-  int64_t sampled_index = sample_top_p_with_filter(0.0f);
-  ICHECK_GE(sampled_index, 0);
+  std::pair<float, int64_t> sampled_index = sample_top_p_with_filter(0.0f);
+  ICHECK_GE(sampled_index.second, 0);
   return sampled_index;
 }
 
@@ -285,9 +296,9 @@ class CPUSampler : public SamplerObj {
     }
   }
 
-  std::vector<int32_t> SampleTokens(NDArray logits_on_device, Model model,
-                                    Array<RequestModelState> request_mstates,
-                                    Array<GenerationConfig> generation_cfg) final {
+  NDArray ComputeProb(NDArray logits_on_device, Model model,
+                      Array<RequestModelState> request_mstates,
+                      Array<GenerationConfig> generation_cfg) final {
     ICHECK(logits_on_device.defined());
     ICHECK_EQ(logits_on_device->ndim, 3);
     ICHECK_EQ(logits_on_device->shape[1], 1)
@@ -299,6 +310,8 @@ class CPUSampler : public SamplerObj {
         request_mstates.Map([](const RequestModelState& mstate) { return mstate->request->id; });
 
     int num_sequence = logits_on_device->shape[0];
+    int seqence_length = logits_on_device->shape[1];
+    int vocab_size = logits_on_device->shape[2];
     RECORD_EVENT(trace_recorder_, request_ids, "start query need GPU softmax");
     bool require_gpu_softmax = RequireGPUSoftmax(generation_cfg);
     RECORD_EVENT(trace_recorder_, request_ids, "finish query need GPU softmax");
@@ -323,12 +336,67 @@ class CPUSampler : public SamplerObj {
     }
     // `CopyLogitsOrProbsToCPU` flattens the first two dimensions.
     ICHECK_EQ(logits_or_probs_on_cpu->ndim, 2);
+    return logits_or_probs_on_cpu;
+  }
 
+  std::vector<int32_t> SampleTokenFromProbs(NDArray probs, Array<RequestModelState> request_mstates,
+                                            Array<GenerationConfig> generation_cfg,
+                                            std::vector<NDArray>* output_prob_dist,
+                                            std::vector<float>* output_token_probs) final {
+    // probs: (n, v)
+    CHECK_EQ(probs->ndim, 2);
+    CHECK_EQ(probs->device.device_type, kDLCPU);
+
+    Array<String> request_ids =
+        request_mstates.Map([](const RequestModelState& mstate) { return mstate->request->id; });
+
+    int n = probs->shape[0];
+    std::vector<double> random_numbers;
+    std::vector<int32_t> sampled_tokens;
+    random_numbers.reserve(n);
+    sampled_tokens.resize(n);
+    if (output_prob_dist) {
+      output_prob_dist->resize(n);
+    }
+    if (output_token_probs) {
+      output_token_probs->resize(n);
+    }
+    for (int i = 0; i < n; ++i) {
+      random_numbers.push_back(rng_.GetRandomNumber());
+    }
+
+    tvm::runtime::parallel_for_with_threading_backend(
+        [this, &sampled_tokens, &probs, &generation_cfg, &random_numbers, &request_ids,
+         output_prob_dist, output_token_probs](int i) {
+          RECORD_EVENT(this->trace_recorder_, request_ids[i], "start sample token");
+          // Sample top p from probability.
+          auto sample_result = SampleTopPFromProb(probs, i, generation_cfg[i]->top_p,
+                                                  random_numbers[i], output_prob_dist);
+          sampled_tokens[i] = sample_result.second;
+          if (output_token_probs) {
+            (*output_token_probs)[i] = sample_result.first;
+          }
+          RECORD_EVENT(this->trace_recorder_, request_ids[i], "finish sample token");
+        },
+        0, n);
+    return sampled_tokens;
+  }
+
+  std::vector<int32_t> SampleTokens(NDArray logits_on_device, Model model,
+                                    Array<RequestModelState> request_mstates,
+                                    Array<GenerationConfig> generation_cfg,
+                                    std::vector<NDArray>* output_prob_dist,
+                                    std::vector<float>* output_token_probs) final {
+    NDArray logits_or_probs_on_cpu =
+        ComputeProb(logits_on_device, model, request_mstates, generation_cfg);
     // - Sample tokens from probabilities.
     // NOTE: Though we have the probability field in RequestModelState,
     //       we do not save the probabilities right now.
     //       We will handle this in the future when we work on speculation.
-    return SampleTokenFromProbs(logits_or_probs_on_cpu, generation_cfg, request_ids);
+    std::vector<int32_t> output_tokens =
+        SampleTokenFromProbs(logits_or_probs_on_cpu, request_mstates, generation_cfg,
+                             output_prob_dist, output_token_probs);
+    return output_tokens;
   }
 
  private:
@@ -396,39 +464,6 @@ class CPUSampler : public SamplerObj {
           }
         },
         0, logits->shape[0]);
-  }
-
-  /*!
-   * \brief Sample tokens from a batch of input probability distributions.
-   * \param probs The input batch of probability distributions.
-   * \param generation_cfg The generation config.
-   * \return The sampled tokens, one for each instance of the batch.
-   */
-  std::vector<int32_t> SampleTokenFromProbs(NDArray probs, Array<GenerationConfig> generation_cfg,
-                                            const Array<String>& request_ids) {
-    // probs: (n, v)
-    CHECK_EQ(probs->ndim, 2);
-    CHECK_EQ(probs->device.device_type, kDLCPU);
-
-    int n = probs->shape[0];
-    std::vector<double> random_numbers;
-    std::vector<int32_t> sampled_tokens;
-    random_numbers.reserve(n);
-    sampled_tokens.resize(n);
-    for (int i = 0; i < n; ++i) {
-      random_numbers.push_back(rng_.GetRandomNumber());
-    }
-
-    tvm::runtime::parallel_for_with_threading_backend(
-        [this, &sampled_tokens, &probs, &generation_cfg, &random_numbers, &request_ids](int i) {
-          RECORD_EVENT(this->trace_recorder_, request_ids[i], "start sample token");
-          // Sample top p from probability.
-          sampled_tokens[i] =
-              SampleTopPFromProb(probs, i, generation_cfg[i]->top_p, random_numbers[i]);
-          RECORD_EVENT(this->trace_recorder_, request_ids[i], "finish sample token");
-        },
-        0, n);
-    return sampled_tokens;
   }
 
   /*! \brief The event trace recorder for requests. */

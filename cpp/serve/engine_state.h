@@ -32,6 +32,10 @@ struct EngineStats {
   int64_t total_prefill_length = 0;
   /*! \brief The total number of processed tokens in decode. */
   int64_t total_decode_length = 0;
+  /*! \brief The total number of accepted tokens in verification. */
+  int64_t total_accepted_length = 0;
+  /*! \brief The total number of draft tokens in draft. */
+  int64_t total_draft_length = 0;
 
   /*!
    * \brief Return the engine runtime statistics in JSON string.

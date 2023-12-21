@@ -156,6 +156,7 @@ void FunctionTable::_InitFunctions() {
   this->embed_func_ = mod_get_func("embed");
   this->prefill_func_ = mod_get_func("prefill_with_embed");
   this->decode_func_ = mod_get_func("decode_with_embed");
+  this->verify_func_ = mod_get_func("verify_with_embed");
   this->softmax_func_ = mod_get_func("softmax_with_temperature");
   this->create_kv_cache_func_ = mod_get_func("create_kv_cache");
   this->reset_kv_cache_func_ = get_global_func("vm.builtin.paged_attention_kv_cache_clear");

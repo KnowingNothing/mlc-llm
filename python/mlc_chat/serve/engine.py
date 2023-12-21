@@ -155,6 +155,7 @@ class Engine:
         kv_cache_config: KVCacheConfig,
         request_stream_callback: Optional[Callable[[List[RequestStreamOutput]], None]] = None,
         enable_tracing: bool = False,
+        spec_decode_draft_length: int = 4,
     ):
         (
             model_args,
@@ -176,14 +177,25 @@ class Engine:
             ],
         )
         self.trace_recorder = EventTraceRecorder() if enable_tracing else None
-        self._ffi["init"](
-            self.max_single_sequence_length,
-            tokenizer_path,
-            kv_cache_config.asjson(),
-            request_stream_callback,
-            self.trace_recorder,
-            *model_args,
-        )
+        if len(model_args) / 4 > 1:
+            self._ffi["init"](
+                self.max_single_sequence_length,
+                tokenizer_path,
+                kv_cache_config.asjson(),
+                request_stream_callback,
+                self.trace_recorder,
+                *model_args,
+                spec_decode_draft_length,
+            )
+        else:
+            self._ffi["init"](
+                self.max_single_sequence_length,
+                tokenizer_path,
+                kv_cache_config.asjson(),
+                request_stream_callback,
+                self.trace_recorder,
+                *model_args,
+            )
         self.tokenizer = Tokenizer(tokenizer_path)
 
     def generate(

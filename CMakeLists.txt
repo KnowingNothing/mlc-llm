@@ -45,6 +45,7 @@ endif()
 option(BUILD_CPP_TEST "Build cpp unittests" OFF)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # tvm runtime config: minimize runtime components
 set(USE_RPC OFF)
