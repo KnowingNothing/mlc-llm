@@ -171,23 +171,19 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="deploy/javascript.html">WebLLM and Javascript API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deploy/rest.html">Rest API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="deploy/cli.html">CLI and C++ API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="deploy/python.html">Python API and Gradio Frontend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy/python.html">Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deploy/ios.html">iOS App and Swift API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deploy/android.html">Android App</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Compile Models</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="compilation/compile_models.html">Compile Models via MLC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compilation/distribute_compiled_models.html">Distribute Compiled Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compilation/python.html">Python API for Model Compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compilation/convert_weights.html">Convert Weights via MLC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compilation/compile_models.html">Compile Model Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compilation/define_new_models.html">Define New Model Architectures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compilation/configure_quantization.html">🚧 Configure Quantization</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Define Model Architectures</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/customize/define_new_models.html">Define New Model Architectures</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Prebuilt Models</span></p>
+<p class="caption" role="heading"><span class="caption-text">Model Prebuilts</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="prebuilt_models.html">Model Prebuilts</a></li>
 </ul>
@@ -289,89 +285,8 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#_"><strong>_</strong></a>
- | <a href="#B"><strong>B</strong></a>
- | <a href="#C"><strong>C</strong></a>
- | <a href="#E"><strong>E</strong></a>
- | <a href="#G"><strong>G</strong></a>
- | <a href="#R"><strong>R</strong></a>
- | <a href="#S"><strong>S</strong></a>
  
 </div>
-<h2 id="_">_</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="deploy/python.html#mlc_chat.ChatModule.__init__">__init__() (mlc_chat.ChatModule method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="B">B</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="deploy/python.html#mlc_chat.ChatModule.benchmark_generate">benchmark_generate() (mlc_chat.ChatModule method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="compilation/python.html#mlc_llm.build_model">build_model() (in module mlc_llm)</a>
-</li>
-      <li><a href="compilation/python.html#mlc_llm.BuildArgs">BuildArgs (class in mlc_llm)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="C">C</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="deploy/python.html#mlc_chat.ChatConfig">ChatConfig (class in mlc_chat)</a>
-</li>
-      <li><a href="deploy/python.html#mlc_chat.ChatModule">ChatModule (class in mlc_chat)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="deploy/python.html#mlc_chat.ConvConfig">ConvConfig (class in mlc_chat)</a>
-</li>
-      <li><a href="compilation/python.html#mlc_llm.BuildArgs.convert_weight_only">convert_weight_only (mlc_llm.BuildArgs property)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="E">E</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="deploy/python.html#mlc_chat.ChatModule.embed_text">embed_text() (mlc_chat.ChatModule method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="G">G</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="deploy/python.html#mlc_chat.ChatModule.generate">generate() (mlc_chat.ChatModule method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="deploy/python.html#mlc_chat.GenerationConfig">GenerationConfig (class in mlc_chat)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="R">R</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="deploy/python.html#mlc_chat.ChatModule.reset_chat">reset_chat() (mlc_chat.ChatModule method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="S">S</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="deploy/python.html#mlc_chat.ChatModule.stats">stats() (mlc_chat.ChatModule method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 
 
            </div>

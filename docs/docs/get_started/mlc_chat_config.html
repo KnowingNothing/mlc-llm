@@ -172,13 +172,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#conversation-structure">Conversation Structure</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#load-from-pre-defined-conversation-templates">Load from Pre-defined Conversation Templates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#load-from-json-conversation-configuration">Load from JSON Conversation Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#customize-conversation-template">Customize Conversation Template</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#example-1-replace-system-prompt">Example 1: Replace System Prompt</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#example-2-resume-from-chat-history">Example 2: Resume from Chat History</a></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -186,23 +179,19 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../deploy/javascript.html">WebLLM and Javascript API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploy/rest.html">Rest API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../deploy/cli.html">CLI and C++ API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../deploy/python.html">Python API and Gradio Frontend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy/python.html">Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploy/ios.html">iOS App and Swift API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deploy/android.html">Android App</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Compile Models</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../compilation/compile_models.html">Compile Models via MLC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../compilation/distribute_compiled_models.html">Distribute Compiled Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../compilation/python.html">Python API for Model Compilation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compilation/convert_weights.html">Convert Weights via MLC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compilation/compile_models.html">Compile Model Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compilation/define_new_models.html">Define New Model Architectures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/configure_quantization.html">🚧 Configure Quantization</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Define Model Architectures</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials/customize/define_new_models.html">Define New Model Architectures</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Prebuilt Models</span></p>
+<p class="caption" role="heading"><span class="caption-text">Model Prebuilts</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../prebuilt_models.html">Model Prebuilts</a></li>
 </ul>
@@ -305,50 +294,79 @@
             
   <section id="configure-mlcchat-in-json">
 <span id="configure-mlc-chat-json"></span><h1>Configure MLCChat in JSON<a class="headerlink" href="#configure-mlcchat-in-json" title="Permalink to this heading">¶</a></h1>
-<p>This page explains the components of a chat configuration and how to customize them for your own purposes.</p>
-<p>Each MLC Chat runtime can be configured via an <code class="docutils literal notranslate"><span class="pre">mlc-chat-config.json</span></code> file under the directory of each compiled model (e.g.
-<a class="reference external" href="https://huggingface.co/mlc-ai/mlc-chat-RedPajama-INCITE-Chat-3B-v1-q4f16_1/blob/main/mlc-chat-config.json">RedPajama chat config</a>)
-which contains the chat configuration. You can customize the chat configuration by modifying this file.
-Additionally, the runtimes also provide APIs to optionally override some of the configurations.</p>
+<p><code class="docutils literal notranslate"><span class="pre">mlc-chat-config.json</span></code> is required for both compile-time and runtime, hence serving two purposes:</p>
+<ol class="arabic simple">
+<li><p>Specify how we compile a model (shown in <a class="reference internal" href="../compilation/compile_models.html#compile-model-libraries"><span class="std std-ref">Compile Model Libraries</span></a>), and</p></li>
+<li><p>Specify conversation behavior in runtime.</p></li>
+</ol>
+<p><strong>This page focuses on the second purpose.</strong> We explain the components of a chat
+configuration and how to customize them by modifying the file. Additionally,
+the runtimes also provide APIs to optionally override some of the configurations.</p>
+<p>In runtime, this file is stored under the directory of each compiled model
+(e.g. <a class="reference external" href="https://huggingface.co/mlc-ai/mlc-chat-RedPajama-INCITE-Chat-3B-v1-q4f16_1/blob/main/mlc-chat-config.json">RedPajama chat config</a>).</p>
 <section id="structure-of-mlcchat-configuration">
 <span id="struct-mlc-chat-conv"></span><h2>Structure of MLCChat Configuration<a class="headerlink" href="#structure-of-mlcchat-configuration" title="Permalink to this heading">¶</a></h2>
 <p>Below is the <code class="docutils literal notranslate"><span class="pre">mlc-chat-config.json</span></code> file corresponding to Llama2 model:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="c1">// mlc-chat-config.json</span>
 <span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;model_lib&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Llama-2-7b-chat-hf-q4f16_1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;local_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Llama-2-7b-chat-hf-q4f16_1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;conv_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;llama-2&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;temperature&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;repetition_penalty&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;top_p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.95</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// 1. Metadata used to specify how to compile a model</span>
+<span class="w">  </span><span class="nt">&quot;model_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;llama&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;quantization&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;q4f16_1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;model_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;hidden_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4096</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;intermediate_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11008</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// more fields here...</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;vocab_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">32000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;context_window_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4096</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;sliding_window_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;prefill_chunk_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4096</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tensor_parallel_shards&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+
+<span class="w">  </span><span class="c1">// 2. Tokenizer-related fields</span>
+<span class="w">  </span><span class="nt">&quot;pad_token_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;bos_token_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;eos_token_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tokenizer_files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tokenizer.model&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tokenizer.json&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tokenizer_config.json&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+
+<span class="w">  </span><span class="c1">// 3. Conversation template related fields</span>
+<span class="w">  </span><span class="nt">&quot;conv_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;llama-2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;system_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[INST] &lt;&lt;SYS&gt;&gt;\n{system_message}\n&lt;&lt;/SYS&gt;&gt;\n\n &quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;system_message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;You are a helpful, respectful and honest assistant.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// more fields here...</span>
+<span class="w">  </span><span class="p">},</span>
+
+<span class="w">  </span><span class="c1">// 4. Chat related fields that affect runtime behavior</span>
 <span class="w">  </span><span class="nt">&quot;mean_gen_len&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;max_gen_len&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">512</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;shift_fill_factor&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.3</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;tokenizer_files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;added_tokens.json&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;tokenizer.json&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;tokenizer.model&quot;</span>
-<span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;model_category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;llama&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;model_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Llama-2-7b-chat-hf&quot;</span>
+<span class="w">  </span><span class="nt">&quot;temperature&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.6</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;repetition_penalty&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;top_p&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.9</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The following fields contain the meta-data which affect system behaviors.</p>
-<dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">model_lib</span></code></dt><dd><p>The necessary model library to launch this model architecture. We recommend reuse model library when possible.
-For example, all LLaMA-7B models compiled under <code class="docutils literal notranslate"><span class="pre">q4f16_1</span></code> quantization
-can use <cite>Llama-2-7b-chat-hf-q4f16_1</cite>. So you can distribute LLaMA-7B
-weight variants and still use them in prebuilt MLC chat apps.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">local_id</span></code></dt><dd><p>Uniquely identifying the model in application. This is also used by command line interface app to specify which model to run.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">tokenizer_files</span></code></dt><dd><p>List of tokenizer files of the model.</p>
-</dd>
-</dl>
-<p>The following fields can be customized to change the behavior of the model:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Fields in the first part of <code class="docutils literal notranslate"><span class="pre">mlc-chat-config.json</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">context-window-size</span></code>)
+is only for compile-time. Changing them during runtime may lead to unexpected behavior.</p>
+</div>
+<p><strong>As shown above, the file is divided into three parts. We focus on the third part, which
+can be customized to change the behavior of the model.</strong></p>
 <dl>
-<dt><code class="docutils literal notranslate"><span class="pre">conv_template</span></code></dt><dd><p>The name of the conversation template that this chat uses. For more information, please refer to <a class="reference internal" href="#struct-conv"><span class="std std-ref">conversation structure</span></a>.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">conv_template</span></code></dt><dd><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Legacy <code class="docutils literal notranslate"><span class="pre">mlc-chat-config.json</span></code> may specify a string for this field to look up a registered conversation
+template. It will be deprecated in the future. Re-generate config using the latest version of mlc_llm
+to make sure this field is a complete JSON object.</p>
+</div>
+<p>The conversation template that this chat uses. For more information, please refer to <a class="reference internal" href="#struct-conv"><span class="std std-ref">conversation structure</span></a>.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">temperature</span></code></dt><dd><p>The temperature applied to logits before sampling. The default value is <code class="docutils literal notranslate"><span class="pre">0.7</span></code>. A higher temperature encourages more diverse outputs, while a lower temperature produces more deterministic outputs.</p>
 </dd>
@@ -358,134 +376,108 @@ weight variants and still use them in prebuilt MLC chat apps.</p>
 <dt><code class="docutils literal notranslate"><span class="pre">top_p</span></code></dt><dd><p>This parameter determines the set of tokens from which we sample during decoding. The default value is set to <code class="docutils literal notranslate"><span class="pre">0.95</span></code>. At each step, we select tokens from the minimal set that has a cumulative probability exceeding the <code class="docutils literal notranslate"><span class="pre">top_p</span></code> parameter.</p>
 <p>For additional information on top-p sampling, please refer to this <a class="reference external" href="https://huggingface.co/blog/how-to-generate#top-p-nucleus-sampling">blog post</a>.</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">mean_gen_len</span></code></dt><dd><p>The approximated average number of generated tokens in each round. Used to determine whether the maximum window size would be exceeded.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">max_gen_len</span></code></dt><dd><p>This parameter determines the maximum length of the generated text. If it is not set, the model will generate text until it encounters a stop token.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">shift_fill_factor</span></code></dt><dd><p>The fraction of maximum window size to shift when it is exceeded.</p>
+</dd>
 </dl>
 <section id="conversation-structure">
 <span id="struct-conv"></span><h3>Conversation Structure<a class="headerlink" href="#conversation-structure" title="Permalink to this heading">¶</a></h3>
-<p>There are three options of loading conversation configurations:</p>
-<ol class="arabic simple">
-<li><p>Load from pre-defined conversation templates.</p></li>
-<li><p>Load from JSON format conversation configuration.</p></li>
-<li><p>First load from pre-defined conversation templates, then override some fields with JSON format conversation configuration.</p></li>
-</ol>
-</section>
-</section>
-<section id="load-from-pre-defined-conversation-templates">
-<span id="load-predefined-conv-template"></span><h2>Load from Pre-defined Conversation Templates<a class="headerlink" href="#load-from-pre-defined-conversation-templates" title="Permalink to this heading">¶</a></h2>
-<p>MLC-LLM provided a set of pre-defined conversation templates, which you can directly use by specifying the template name in <code class="docutils literal notranslate"><span class="pre">conv_template</span></code> field in the <code class="docutils literal notranslate"><span class="pre">mlc-chat-config.json</span></code>, below is a list (not complete) of supported conversation templates:</p>
+<p>MLC-LLM provided a set of pre-defined conversation templates, which you can directly use by
+specifying <code class="docutils literal notranslate"><span class="pre">--conv-template</span> <span class="pre">[name]</span></code> when generating config. Below is a list (not complete) of
+supported conversation templates:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">llama-2</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">vicuna_v1.1</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">redpajama_chat</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">rwkv</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dolly</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mistral_default</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chatml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">phi-2</span></code></p></li>
 <li><p>…</p></li>
 </ul>
-<p>Please refer to <a class="reference external" href="https://github.com/mlc-ai/mlc-llm/blob/main/cpp/conv_templates.cc">conv_template.cc</a> for the full list of supported templates and their implementations.</p>
-</section>
-<section id="load-from-json-conversation-configuration">
-<span id="load-json-conv-config"></span><h2>Load from JSON Conversation Configuration<a class="headerlink" href="#load-from-json-conversation-configuration" title="Permalink to this heading">¶</a></h2>
+<p>Please refer to <a class="reference external" href="https://github.com/mlc-ai/mlc-llm/blob/main/python/mlc_llm/conversation_template.py">conversation_template.py</a> for the full list of supported templates and their implementations.</p>
 <p>Below is a generic structure of a JSON conversation configuration (we use vicuna as an example):</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="c1">// mlc-chat-config.json</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="c1">// ...</span>
-<span class="w">  </span><span class="nt">&quot;conv_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;conv_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;llama-2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;system_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[INST] &lt;&lt;SYS&gt;&gt;\n{system_message}\n&lt;&lt;/SYS&gt;&gt;\n\n &quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;system_message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;You are a helpful, respectful and honest assistant.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;roles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[INST]&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;assistant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[/INST]&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tool&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;[INST]&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;role_templates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{user_message}&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;assistant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{assistant_message}&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tool&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{tool_message}&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;messages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
 <span class="w">    </span><span class="nt">&quot;seps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot; &quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;&lt;\/s&gt;&quot;</span>
+<span class="w">      </span><span class="s2">&quot; &quot;</span>
 <span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;stop_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;role_content_sep&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot; &quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;role_empty_sep&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot; &quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;stop_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;[INST]&quot;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;stop_token_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="mi">2</span>
 <span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;offset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;separator_style&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;messages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">    </span><span class="nt">&quot;stop_str&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;\/s&gt;&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;roles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;USER&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;ASSISTANT&quot;</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;role_msg_sep&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;: &quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;role_empty_sep&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;: &quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;system&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user&#39;s questions.&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;add_bos&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vicuna_v1.1&quot;</span>
+<span class="w">    </span><span class="nt">&quot;function_string&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;use_function_calling&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">roles</span></code></dt><dd><p>An array that describes the role names of the user and the model. These names are specific to the model being used.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">name</span></code></dt><dd><p>Name of the conversation.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">system</span></code></dt><dd><p>The prompt encoded before starting the chat. It can be customized to a user-defined prompt.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">system_template</span></code></dt><dd><p>The system prompt template, it optionally contains the system
+message placeholder, and the placeholder will be replaced with
+the system message below.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">add_bos</span></code></dt><dd><p>Determines whether a beginning-of-string (bos) token should be added before the input tokens.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">system_message</span></code></dt><dd><p>The content of the system prompt (without the template format).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">system_prefix_token_ids</span></code></dt><dd><p>The system token ids to be prepended at the beginning of tokenized
+generated prompt.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">roles</span></code></dt><dd><p>The conversation roles</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">role_templates</span></code></dt><dd><p>The roles prompt template, it optionally contains the defaults
+message placeholders and will be replaced by actual content</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">messages</span></code></dt><dd><p>The conversation history messages.
+Each message is a pair of strings, denoting “(role, content)”.
+The content can be None.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">seps</span></code></dt><dd><p>An array of strings indicating the separators to be used after a user
+message and a model message respectively.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">role_content_sep</span></code></dt><dd><p>The separator between the role and the content in a message.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">role_empty_sep</span></code></dt><dd><p>The separator between the role and empty contents.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">stop_str</span></code></dt><dd><p>When the <code class="docutils literal notranslate"><span class="pre">stop_str</span></code> is encountered, the model will stop generating output.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">stop_tokens</span></code></dt><dd><p>A list of token IDs that act as stop tokens.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">stop_token_ids</span></code></dt><dd><p>A list of token IDs that act as stop tokens.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">seps</span></code></dt><dd><p>An array of strings indicating the separators to be used after a user message and a model message respectively.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">function_string</span></code></dt><dd><p>The function calling string.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">messages</span></code></dt><dd><p>The chat history represented as an array of string pairs in the following format: <code class="docutils literal notranslate"><span class="pre">[[role_0,</span> <span class="pre">msg_0],</span> <span class="pre">[role_1,</span> <span class="pre">msg_1],</span> <span class="pre">...]</span></code></p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">offset</span></code></dt><dd><p>The offset used to begin the chat from the chat history. When <code class="docutils literal notranslate"><span class="pre">offset</span></code> is not <code class="docutils literal notranslate"><span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">messages[0:offset-1]</span></code> will be encoded.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">separator_style</span></code></dt><dd><p>Specifies whether we are in chat-bot mode (<code class="docutils literal notranslate"><span class="pre">0</span></code>) or pure LM prompt mode (<code class="docutils literal notranslate"><span class="pre">1</span></code>).</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">role_msg_sep</span></code></dt><dd><p>A string indicating the separator between a role and a message.</p>
-</dd>
-<dt><code class="docutils literal notranslate"><span class="pre">role_empty_sep</span></code></dt><dd><p>A string indicating the separator to append to a role when there is no message yet.</p>
+<dt><code class="docutils literal notranslate"><span class="pre">use_function_calling</span></code></dt><dd><p>Whether using function calling or not, helps check for output message format in API call.</p>
 </dd>
 </dl>
-<p>When the value of <code class="docutils literal notranslate"><span class="pre">separator_style</span></code> is set to 0 (or <code class="docutils literal notranslate"><span class="pre">kSepRoleMsg</span></code>), each round of conversation follows the format:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{role[0]}{separator_style}{user_input}{sep[0]}
-{role[1]}{separator_style}{model_output}{sep[1]}
+<p>Given a conversation template, the corresponding prompt generated out
+from it is in the following format:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;&lt;system&gt;&gt;&lt;&lt;messages[0][0]&gt;&gt;&lt;&lt;role_content_sep&gt;&gt;&lt;&lt;messages[0][1]&gt;&gt;&lt;&lt;seps[0]&gt;&gt;
+          &lt;&lt;messages[1][0]&gt;&gt;&lt;&lt;role_content_sep&gt;&gt;&lt;&lt;messages[1][1]&gt;&gt;&lt;&lt;seps[1]&gt;&gt;
+          ...
+          &lt;&lt;messages[2][0]&gt;&gt;&lt;&lt;role_content_sep&gt;&gt;&lt;&lt;messages[2][1]&gt;&gt;&lt;&lt;seps[0]&gt;&gt;
+          &lt;&lt;roles[1]&gt;&gt;&lt;&lt;role_empty_sep&gt;&gt;
 </pre></div>
 </div>
-<p>Here, <code class="docutils literal notranslate"><span class="pre">{user_input}</span></code> represents the input provided by the user, and <code class="docutils literal notranslate"><span class="pre">{model_output}</span></code> represents the output generated by the model.</p>
-<p>On the other hand, if the value of <code class="docutils literal notranslate"><span class="pre">separator_style</span></code> is set to 1 (or <code class="docutils literal notranslate"><span class="pre">kLM</span></code>), the model is not aware of the chat history and generates the response immediately after the user input prompt:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{user_prompt}{model_output}
-</pre></div>
-</div>
-</section>
-<section id="customize-conversation-template">
-<span id="customize-conv-template"></span><h2>Customize Conversation Template<a class="headerlink" href="#customize-conversation-template" title="Permalink to this heading">¶</a></h2>
-<p>In the <code class="docutils literal notranslate"><span class="pre">mlc-chat-config.json</span></code> file, you have the option to specify both <code class="docutils literal notranslate"><span class="pre">conv_template</span></code> and <code class="docutils literal notranslate"><span class="pre">conv_config</span></code>. MLC-LLM will first load the predefined template with the name specified in <code class="docutils literal notranslate"><span class="pre">conv_template</span></code> and then override some of the configurations specified in <code class="docutils literal notranslate"><span class="pre">conv_config</span></code>. It’s important to note that the configurations in <code class="docutils literal notranslate"><span class="pre">conv_config</span></code> don’t need to be complete, allowing for partial updates.</p>
-<section id="example-1-replace-system-prompt">
-<span id="example-replace-system-prompt"></span><h3>Example 1: Replace System Prompt<a class="headerlink" href="#example-1-replace-system-prompt" title="Permalink to this heading">¶</a></h3>
-<p>If you’re tired of the default system prompt, here’s an example of how you can replace it:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="c1">// mlc-chat-config.json</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="c1">// ...</span>
-<span class="w">  </span><span class="nt">&quot;conv_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vicuna_v1.1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;conv_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;system&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;You are not Vicuna, your name is Guanaco, now let&#39;s chat!&quot;</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>The next time you run <code class="docutils literal notranslate"><span class="pre">mlc_chat_cli</span></code>, you will start a chat with Vicuna using a new system prompt.</p>
-</section>
-<section id="example-2-resume-from-chat-history">
-<span id="example-resume-chat-history"></span><h3>Example 2: Resume from Chat History<a class="headerlink" href="#example-2-resume-from-chat-history" title="Permalink to this heading">¶</a></h3>
-<p>The following example demonstrates how to chat with Vicuna and resume from a chat history:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="c1">// mlc-chat-config.json</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="c1">// ...</span>
-<span class="w">  </span><span class="nt">&quot;conv_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vicuna_v1.1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;conv_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;messages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">[</span><span class="s2">&quot;USER&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Suppose we already have projects llama, alpaca and vicuna, what do you think would be a great name for the next project?&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="p">[</span><span class="s2">&quot;ASSISTANT&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Based on the previous projects, a possible name for the next project could be \&quot;cervidae\&quot; which is the scientific name for deer family. This name reflects the collaboration and teamwork involved in the development of the project, and also nods to the previous projects that have been developed by the team.&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="p">[</span><span class="s2">&quot;USER&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;I like cervidae, but the name is too long!&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="p">[</span><span class="s2">&quot;ASSISTANT&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;In that case, a shorter and catchier name for the next project could be \&quot;DeerRun\&quot; which plays on the idea of the project being fast and efficient, just like a deer running through the woods. This name is memorable and easy to pronounce, making it a good choice for a project name.&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;offset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>The next time you start <code class="docutils literal notranslate"><span class="pre">mlc_chat_cli</span></code>, you will initiate a chat with Vicuna and resume from the provided chat history.</p>
 </section>
 </section>
 </section>
