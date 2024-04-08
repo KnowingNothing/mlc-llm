@@ -172,7 +172,7 @@
 <p class="caption" role="heading"><span class="caption-text">Build and Deploy Apps</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="deploy/javascript.html">WebLLM and Javascript API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="deploy/rest.html">Rest API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy/rest.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deploy/cli.html">CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deploy/python.html">Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="deploy/ios.html">iOS App and Swift API</a></li>
@@ -336,6 +336,12 @@ It is always recommended to install it in an isolated conda virtual environment.
 <p>For Windows/Linux users, make sure to have latest <a class="reference internal" href="install/gpu.html#vulkan-driver"><span class="std std-ref">Vulkan driver</span></a> installed.</p>
 <p><strong>Run in command line</strong>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mlc_llm<span class="w"> </span>chat<span class="w"> </span>HF://mlc-ai/Llama-2-7b-chat-hf-q4f16_1-MLC
+</pre></div>
+</div>
+<p>If you are using windows/linux/steamdeck and would like to use vulkan,
+we recommend installing necessary vulkan loader dependency via conda
+to avoid vulkan not found issues.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>gcc<span class="w"> </span>libvulkan-loader
 </pre></div>
 </div>
 </div><div aria-labelledby="tab-0-0-2" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-2" name="0-2" role="tabpanel" tabindex="0"><p><a class="reference external" href="https://webllm.mlc.ai/#chat-demo">WebLLM</a>. MLC LLM generates performant code for WebGPU and WebAssembly,
