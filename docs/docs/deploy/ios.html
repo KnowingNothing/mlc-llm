@@ -47,7 +47,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Android App" href="android.html" />
-    <link rel="prev" title="Python API" href="python.html" /> 
+    <link rel="prev" title="Python API" href="python_engine.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -166,15 +166,15 @@
             
               <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../get_started/project_overview.html">Project Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../get_started/mlc_chat_config.html">Configure MLCChat in JSON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/introduction.html">Introduction to MLC LLM</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Build and Deploy Apps</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="javascript.html">WebLLM and Javascript API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="javascript.html">WebLLM and JavaScript API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="python.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python_engine.html">Python API</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">iOS App and Swift API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#use-pre-built-ios-app">Use Pre-built iOS App</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#build-ios-app-from-source">Build iOS App from Source</a><ul>
@@ -192,13 +192,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="android.html">Android App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ide_integration.html">Code Completion IDE Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlc_chat_config.html">Customize MLC Config File in JSON</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Compile Models</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/convert_weights.html">Convert Weights via MLC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/compile_models.html">Compile Model Libraries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/define_new_models.html">Define New Model Architectures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../compilation/configure_quantization.html">🚧 Configure Quantization</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Model Prebuilts</span></p>
 <ul>
@@ -504,7 +504,7 @@ contains a full list of conversation templates that MLC provides.</p>
 <p>If the model you are adding requires a new conversation template, you would need to add your own.
 Follow <a class="reference external" href="https://github.com/mlc-ai/mlc-llm/pull/1402">this PR</a> as an example.
 We look up the template to use with the <code class="docutils literal notranslate"><span class="pre">conv_template</span></code> field in <code class="docutils literal notranslate"><span class="pre">mlc-chat-config.json</span></code>.</p>
-<p>For more details, please see <a class="reference internal" href="../get_started/mlc_chat_config.html#configure-mlc-chat-json"><span class="std std-ref">Configure MLCChat in JSON</span></a>.</p>
+<p>For more details, please see <a class="reference internal" href="mlc_chat_config.html#configure-mlc-chat-json"><span class="std std-ref">Customize MLC Config File in JSON</span></a>.</p>
 <p><strong>Step 3 Upload weights to HF</strong></p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, please create a repository on Hugging Face.</span>
 <span class="c1"># With the repository created, run</span>
@@ -736,7 +736,7 @@ the MLCChat app for a complete example.</p>
         <a href="android.html" class="btn btn-neutral float-right" title="Android App" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="python.html" class="btn btn-neutral float-left" title="Python API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="python_engine.html" class="btn btn-neutral float-left" title="Python API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
 

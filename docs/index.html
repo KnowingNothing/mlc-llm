@@ -91,64 +91,41 @@
             
                 <h1 id="mlc-llm">MLC LLM</h1>
 
-<p>MLC LLM is a universal solution that allows any language model to be deployed natively on a diverse set of hardware backends and native applications.</p>
+<p>Documentation: <a href="https://llm.mlc.ai/docs">https://llm.mlc.ai/docs</a></p>
 
-<p>Please visit <a href="https://llm.mlc.ai/docs/get_started/try_out.html">Getting Started</a> for detailed instructions.</p>
-
-<h2 id="demos">Demos</h2>
-
-<ul>
-  <li><a href="#ios">iOS</a></li>
-  <li><a href="#android">Android</a></li>
-  <li><a href="#windows-linux-mac">Windows Linux Mac</a></li>
-  <li><a href="#web-browser">Web browser</a></li>
-</ul>
-
-<h3 id="ios">iOS</h3>
-
-<p>Our iOS app, MLCChat, is available on <a href="https://apps.apple.com/us/app/mlc-chat/id6448482937">App Store</a> for iPhone and iPad.
-You can try out the <a href="https://testflight.apple.com/join/57zd7oxa">Testflight app</a> that sometimes contains beta release of latest models.
-This app is tested on iPhone 15 Pro Max, iPhone 14 Pro Max, iPhone 14 Pro and iPhone 12 Pro.
-Besides the <a href="https://llm.mlc.ai/docs/get_started/try_out.html">Getting Started</a> page,
-<a href="https://llm.mlc.ai/docs/deploy/ios.html">documentation</a> is available for building iOS apps with MLC LLM.</p>
+<p><strong>M</strong>achine <strong>L</strong>earning <strong>C</strong>ompilation for <strong>L</strong>arge <strong>L</strong>anguage <strong>M</strong>odels (MLC LLM) is a high-performance universal deployment solution that allows native deployment of any large language models with native APIs with compiler acceleration. The mission of this project is to enable everyone to develop, optimize and deploy AI models natively on everyone’s devices with ML compilation techniques.</p>
 
 <p align="center">
-<img src="gif/ios-demo.gif" height="700" />
+<img src="https://llm.mlc.ai/docs/_images/project-workflow.svg" height="300" />
 </p>
 
-<p>Note: Llama-7B takes 4GB of RAM and RedPajama-3B takes 2.2GB to run. We recommend a latest device with 6GB RAM for Llama-7B, or 4GB RAM for RedPajama-3B, to run the app. The text generation speed could vary from time to time, for example, slow in the beginning but recover to a normal speed then.</p>
+<h2 id="installation">Installation</h2>
 
-<h3 id="android">Android</h3>
+<p>MLC LLM is available via <a href="https://llm.mlc.ai/docs/install/mlc_llm.html#install-mlc-packages">pip</a>.
+It is always recommended to install it in an isolated conda virtual environment.</p>
 
-<p>The demo APK is available to <a href="https://github.com/mlc-ai/binary-mlc-llm-libs/releases/download/Android/mlc-chat.apk">download</a>. The demo is tested on Samsung S23 with Snapdragon 8 Gen 2 chip, Redmi Note 12 Pro with Snapdragon 685 and Google Pixel phones.
-Besides the <a href="https://llm.mlc.ai/docs/get_started/try_out.html">Getting Started</a> page,
-<a href="https://llm.mlc.ai/docs/deploy/android.html">documentation</a> is available for building android apps with MLC LLM.</p>
+<p>To verify the installation, activate your virtual environment, run</p>
 
-<p align="center">
-<img src="gif/android-demo.gif" height="700" />
-</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python <span class="nt">-c</span> <span class="s2">"import mlc_llm; print(mlc_llm.__path__)"</span>
+</code></pre></div></div>
 
-<h3 id="windows-linux-mac">Windows Linux Mac</h3>
+<p>You are expected to see the installation path of MLC LLM Python package.</p>
 
-<p>Our cpp interface runs on AMD, Intel, Apple and NVIDIA GPUs.
-Besides the <a href="https://llm.mlc.ai/docs/get_started/try_out.html">Getting Started</a> page,
-<a href="https://llm.mlc.ai/docs/deploy/cli.html">documentation</a> is available for building C++ apps with MLC LLM.</p>
+<h2 id="quick-start">Quick Start</h2>
 
-<p align="center">
-<img src="gif/linux-demo.gif" width="80%" />
-</p>
+<p>Please check out our documentation for the <a href="https://llm.mlc.ai/docs/get_started/quick_start.html">quick start</a>.</p>
 
-<h3 id="web-browser">Web Browser</h3>
+<h2 id="introduction">Introduction</h2>
 
-<p><a href="https://webllm.mlc.ai/">WebLLM</a> is our companion project that deploys MLC LLM natively to browsers using WebGPU and WebAssembly. Still everything runs inside the browser without server resources, and accelerated by local GPUs (e.g. AMD, Intel, Apple or NVIDIA).</p>
+<p>Please check out our documentation for the <a href="https://llm.mlc.ai/docs/get_started/introduction.html">introduction</a>.</p>
 
 <h2 id="links">Links</h2>
 
 <ul>
-  <li>Our official <a href="https://github.com/mlc-ai/mlc-llm">GitHub repo</a>;</li>
-  <li>Our companion project <a href="https://webllm.mlc.ai/">WebLLM</a> that enables running LLMs purely in browser.</li>
-  <li><a href="https://websd.mlc.ai/">Web Stable Diffusion</a> is another MLC-series that runs the diffusion models purely in the browser.</li>
-  <li><a href="https://mlc.ai">Machine Learning Compilation course</a> is available for a systematic walkthrough of our approach to universal deployment.</li>
+  <li>You might want to check out our online public <a href="https://mlc.ai">Machine Learning Compilation course</a> for a systematic
+walkthrough of our approaches.</li>
+  <li><a href="https://webllm.mlc.ai/">WebLLM</a> is a companion project using MLC LLM’s WebGPU and WebAssembly backend.</li>
+  <li><a href="https://websd.mlc.ai/">WebStableDiffusion</a> is a companion project for diffusion models with the WebGPU backend.</li>
 </ul>
 
 <h2 id="disclaimer">Disclaimer</h2>

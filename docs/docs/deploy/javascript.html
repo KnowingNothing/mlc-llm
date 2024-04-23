@@ -12,7 +12,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>WebLLM and Javascript API &mdash; mlc-llm 0.1.0 documentation</title>
+  <title>WebLLM and JavaScript API &mdash; mlc-llm 0.1.0 documentation</title>
   
 
   
@@ -47,7 +47,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="REST API" href="rest.html" />
-    <link rel="prev" title="Configure MLCChat in JSON" href="../get_started/mlc_chat_config.html" /> 
+    <link rel="prev" title="Introduction to MLC LLM" href="../get_started/introduction.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -166,12 +166,12 @@
             
               <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../get_started/project_overview.html">Project Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../get_started/mlc_chat_config.html">Configure MLCChat in JSON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/introduction.html">Introduction to MLC LLM</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Build and Deploy Apps</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">WebLLM and Javascript API</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">WebLLM and JavaScript API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#try-out-the-prebuilt-webpage">Try out the Prebuilt Webpage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#use-webllm-npm-package">Use WebLLM NPM Package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#verify-installation-for-adding-models">Verify Installation for Adding Models</a></li>
@@ -181,17 +181,17 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="rest.html">REST API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="python.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python_engine.html">Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ios.html">iOS App and Swift API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="android.html">Android App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ide_integration.html">Code Completion IDE Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlc_chat_config.html">Customize MLC Config File in JSON</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Compile Models</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/convert_weights.html">Convert Weights via MLC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/compile_models.html">Compile Model Libraries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/define_new_models.html">Define New Model Architectures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../compilation/configure_quantization.html">🚧 Configure Quantization</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Model Prebuilts</span></p>
 <ul>
@@ -269,7 +269,7 @@
     
       <li><a href="../index.html">Docs</a> <span class="br-arrow">></span></li>
         
-      <li>WebLLM and Javascript API</li>
+      <li>WebLLM and JavaScript API</li>
     
     
       
@@ -295,7 +295,7 @@
            <div itemprop="articleBody">
             
   <section id="webllm-and-javascript-api">
-<span id="webllm-runtime"></span><h1>WebLLM and Javascript API<a class="headerlink" href="#webllm-and-javascript-api" title="Permalink to this heading">¶</a></h1>
+<span id="webllm-runtime"></span><h1>WebLLM and JavaScript API<a class="headerlink" href="#webllm-and-javascript-api" title="Permalink to this heading">¶</a></h1>
 <nav class="contents local" id="table-of-contents">
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
@@ -427,7 +427,7 @@ contains a full list of conversation templates that MLC provides.</p>
 <p>If the model you are adding requires a new conversation template, you would need to add your own.
 Follow <a class="reference external" href="https://github.com/mlc-ai/mlc-llm/pull/1402">this PR</a> as an example. Besides, you also need to add the new template to <code class="docutils literal notranslate"><span class="pre">/path/to/web-llm/src/conversation.ts</span></code>.
 We look up the template to use with the <code class="docutils literal notranslate"><span class="pre">conv_template</span></code> field in <code class="docutils literal notranslate"><span class="pre">mlc-chat-config.json</span></code>.</p>
-<p>For more details, please see <a class="reference internal" href="../get_started/mlc_chat_config.html#configure-mlc-chat-json"><span class="std std-ref">Configure MLCChat in JSON</span></a>.</p>
+<p>For more details, please see <a class="reference internal" href="mlc_chat_config.html#configure-mlc-chat-json"><span class="std std-ref">Customize MLC Config File in JSON</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you added your conversation template in <code class="docutils literal notranslate"><span class="pre">src/conversation.ts</span></code>, you need to build WebLLM
@@ -613,7 +613,7 @@ on how to run it.</p>
         <a href="rest.html" class="btn btn-neutral float-right" title="REST API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../get_started/mlc_chat_config.html" class="btn btn-neutral float-left" title="Configure MLCChat in JSON" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../get_started/introduction.html" class="btn btn-neutral float-left" title="Introduction to MLC LLM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
 

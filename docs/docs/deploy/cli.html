@@ -46,7 +46,7 @@
     <script type="text/javascript" src="../_static/js/tlcpack_theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Python API" href="python.html" />
+    <link rel="next" title="Python API" href="python_engine.html" />
     <link rel="prev" title="REST API" href="rest.html" /> 
 </head>
 
@@ -166,12 +166,12 @@
             
               <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../get_started/project_overview.html">Project Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../get_started/mlc_chat_config.html">Configure MLCChat in JSON</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/introduction.html">Introduction to MLC LLM</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Build and Deploy Apps</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="javascript.html">WebLLM and Javascript API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="javascript.html">WebLLM and JavaScript API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest.html">REST API</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CLI</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#option-1-conda-prebuilt">Option 1. Conda Prebuilt</a></li>
@@ -179,17 +179,17 @@
 <li class="toctree-l2"><a class="reference internal" href="#run-models-through-mlcchat-cli">Run Models through MLCChat CLI</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="python.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python_engine.html">Python API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ios.html">iOS App and Swift API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="android.html">Android App</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ide_integration.html">Code Completion IDE Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mlc_chat_config.html">Customize MLC Config File in JSON</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Compile Models</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/convert_weights.html">Convert Weights via MLC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/compile_models.html">Compile Model Libraries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../compilation/define_new_models.html">Define New Model Architectures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../compilation/configure_quantization.html">🚧 Configure Quantization</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Model Prebuilts</span></p>
 <ul>
@@ -339,13 +339,13 @@ Then please follow the instructions in <a class="reference internal" href="../in
 </ul>
 <p><strong>Option 1: Use model prebuilts</strong></p>
 <p>To run <code class="docutils literal notranslate"><span class="pre">mlc_llm</span></code>, you can specify the Huggingface MLC prebuilt model repo path with the prefix <code class="docutils literal notranslate"><span class="pre">HF://</span></code>.
-For example, to run the MLC Llama 2 7B Q4F16_1 model (<a class="reference external" href="https://huggingface.co/mlc-ai/Llama-2-7b-chat-hf-q4f16_1-MLC">Repo link</a>),
-simply use <code class="docutils literal notranslate"><span class="pre">HF://mlc-ai/Llama-2-7b-chat-hf-q4f16_1-MLC</span></code>. The model weights and library will be downloaded
+For example, to run the MLC Llama 3 8B Q4F16_1 model (<a class="reference external" href="https://huggingface.co/mlc-ai/Llama-3-8B-Instruct-q4f16_1-MLC">Repo link</a>),
+simply use <code class="docutils literal notranslate"><span class="pre">HF://mlc-ai/Llama-3-8B-Instruct-q4f16_1-MLC</span></code>. The model weights and library will be downloaded
 automatically from Huggingface.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mlc_llm<span class="w"> </span>chat<span class="w"> </span>HF://mlc-ai/Llama-2-7b-chat-hf-q4f16_1-MLC<span class="w"> </span>--device<span class="w"> </span><span class="s2">&quot;cuda:0&quot;</span><span class="w"> </span>--overrides<span class="w"> </span><span class="nv">context_window_size</span><span class="o">=</span><span class="m">1024</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mlc_llm<span class="w"> </span>chat<span class="w"> </span>HF://mlc-ai/Llama-3-8B-Instruct-q4f16_1-MLC<span class="w"> </span>--device<span class="w"> </span><span class="s2">&quot;cuda:0&quot;</span><span class="w"> </span>--overrides<span class="w"> </span><span class="nv">context_window_size</span><span class="o">=</span><span class="m">1024</span>
 </pre></div>
 </div>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>You can use the following special commands:
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>You can use the following special commands:
   /help               print the special commands
   /exit               quit the cli
   /stats              print out the latest stats (token/sec)
@@ -355,13 +355,11 @@ automatically from Huggingface.</p>
                       Note: Separate stop words in the `stop` option with commas (,).
   Multi-line input: Use escape+enter to start a new line.
 
-[INST]: What&#39;s the meaning of life
-[/INST]:
-Ah, a question that has puzzled philosophers and theologians for centuries! The meaning
-of life is a deeply personal and subjective topic, and there are many different
-perspectives on what it might be. However, here are some possible answers that have been
-proposed by various thinkers and cultures:
-...
+user: What&#39;s the meaning of life
+assistant:
+What a profound and intriguing question! While there&#39;s no one definitive answer, I&#39;d be happy to help you explore some perspectives on the meaning of life.
+
+The concept of the meaning of life has been debated and...
 </pre></div>
 </div>
 <p><strong>Option 2: Use locally compiled model weights and libraries</strong></p>
@@ -397,7 +395,7 @@ follow <a class="reference internal" href="../compilation/convert_weights.html#c
 
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="python.html" class="btn btn-neutral float-right" title="Python API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="python_engine.html" class="btn btn-neutral float-right" title="Python API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="rest.html" class="btn btn-neutral float-left" title="REST API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
